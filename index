@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ТЕПЛО</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #f4f7fc;
+            --card-bg: #ffffff;
+            --text-main: #2d3436;
+            --text-sec: #636e72;
+            --primary: #6c5ce7; 
+            --accent: #0984e3;
+            --success: #00b894;
+            --danger: #ff7675;
+            --warning: #fdcb6e;
+            --shadow: 0 10px 20px rgba(0,0,0,0.05), 0 2px 6px rgba(0,0,0,0.05);
+            --radius: 20px;
+            --font-main: 'Montserrat', sans-serif;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1e1e24;
+            --card-bg: #2d3436;
+            --text-main: #dfe6e9;
+            --text-sec: #b2bec3;
+            --primary: #a29bfe; 
+            --shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        body {
+            margin: 0; padding: 0 0 100px 0;
+            background: var(--bg-color); color: var(--text-main);
+            font-family: var(--font-main); transition: background 0.3s ease, color 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        .container { max-width: 600px; margin: 0 auto; padding: 15px; }
+        .hidden { display: none !important; }
+
+        /* CARDS */
+        .card {
+            background: var(--card-bg); border-radius: var(--radius);
+            padding: 20px; margin-bottom: 15px; box-shadow: var(--shadow);
+            transition: 0.3s; position: relative;
+        }
+
+        h2 { font-size: 1.1rem; margin: 0 0 15px 0; color: var(--primary); font-weight: 800; }
+        h3 { margin: 0; font-weight: 700; }
+
+        /* BUTTONS */
+        button { border: none; cursor: pointer; font-family: inherit; font-weight: 600; transition: 0.2s; }
+        .btn {
+            padding: 12px 18px; border-radius: 14px;
+            background: var(--bg-color); color: var(--text-main);
+            box-shadow: var(--shadow); display: inline-flex; align-items: center; justify-content: center;
+        }
+        .btn:active { transform: translateY(2px); }
+        .btn-primary { background: var(--primary); color: #fff; box-shadow: 0 4px 10px rgba(108, 92, 231, 0.3); }
+        .btn-sm { padding: 6px 12px; font-size: 0.75rem; border-radius: 10px; }
+        .btn-circle { width: 40px; height: 40px; padding: 0; border-radius: 50%; font-size: 1.2rem; }
+        .btn-toggle { background: transparent; padding: 0 10px; color: var(--text-sec); font-size: 1.2rem; }
+
+        input, select {
+            width: 100%; padding: 12px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05);
+            background: var(--bg-color); color: var(--text-main);
+            margin-bottom: 10px; font-size: 1rem; font-family: inherit;
+        }
+
+        /* HEADER & FILTER */
+        header {
+            position: sticky; top: 0; z-index: 100; padding: 15px 20px;
+            background: var(--card-bg); box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .logo { font-size: 1.4rem; font-weight: 900; letter-spacing: 1px; }
+
+        .global-filter { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+        .filter-chip {
+            white-space: nowrap; padding: 6px 12px; border-radius: 20px;
+            background: var(--bg-color); font-size: 0.8rem; color: var(--text-sec);
+            border: 1px solid transparent; transition: 0.2s; cursor: pointer;
+        }
+        .filter-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+        
+        #custom-date-panel { display: flex; gap: 5px; margin-top: 10px; animation: fadeIn 0.3s; }
+
+        /* TABS */
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* TASKS */
+        .task-item {
+            background: var(--bg-color); border-radius: 14px; padding: 12px;
+            margin-bottom: 10px; border-left: 4px solid transparent;
+        }
+        .recurring-badge { font-size: 0.6rem; background: var(--accent); color: white; padding: 2px 6px; border-radius: 4px; margin-left: 8px; }
+        .subtasks-list { margin-top: 8px; padding-left: 10px; border-left: 2px solid rgba(0,0,0,0.05); }
+        .subtask { display: flex; align-items: center; margin-top: 5px; font-size: 0.85rem; }
+
+        /* GOALS */
+        .goal-item { border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 15px; margin-bottom: 15px; }
+        .goal-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 5px 0; }
+        .progress-bar { height: 6px; background: rgba(0,0,0,0.05); border-radius: 3px; margin: 10px 0; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--success); width: 0%; transition: 0.5s; }
+
+        /* WALLET */
+        .wallet-card { padding: 15px; border-radius: 16px; color: white; margin-bottom: 10px; position: relative; overflow: hidden; }
+        .wallet-inc { background: linear-gradient(135deg, #00b894, #00cec9); }
+        .wallet-exp { background: linear-gradient(135deg, #ff7675, #d63031); }
+        .history-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.05); font-size: 0.9rem; }
+
+        /* NAV */
+        .nav-bar {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 400px;
+            background: var(--card-bg); border-radius: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            display: flex; justify-content: space-around; padding: 12px; z-index: 999;
+        }
+        .nav-item { opacity: 0.5; transition: 0.3s; display: flex; flex-direction: column; align-items: center; width: 60px; cursor: pointer; }
+        .nav-item.active { opacity: 1; color: var(--primary); transform: translateY(-3px); }
+
+        /* MODALS */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 2000; display: none; align-items: center; justify-content: center; }
+        .modal-content { background: var(--card-bg); width: 90%; max-width: 400px; padding: 25px; border-radius: 25px; max-height: 85vh; overflow-y: auto; }
+
+        /* CHARTS */
+        .chart-box { display: flex; align-items: flex-end; justify-content: space-between; height: 120px; gap: 4px; padding-top: 10px; }
+        .bar-col { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
+        .bar { width: 80%; border-radius: 4px 4px 0 0; min-height: 4px; }
+        /* --- НОВЫЕ СТИЛИ: ДИАГРАММА И СОРТИРОВКА --- */
+        
+        /* Круговая диаграмма */
+        .pie-chart-container {
+            display: flex; align-items: center; justify-content: space-around;
+            padding: 10px 0;
+        }
+        .pie-chart {
+            width: 120px; height: 120px; border-radius: 50%;
+            background: conic-gradient(var(--text-sec) 0% 100%); /* Заглушка */
+            box-shadow: inset 0 0 0 20px var(--card-bg); /* Делаем бублик */
+        }
+        .chart-legend { font-size: 0.8rem; display: flex; flex-direction: column; gap: 5px; }
+        .legend-item { display: flex; align-items: center; gap: 6px; }
+        .legend-color { width: 10px; height: 10px; border-radius: 50%; }
+
+        /* Сортировка в кошельке */
+        .wallet-controls { display: flex; gap: 10px; margin-bottom: 15px; }
+        .sort-select { 
+            padding: 8px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); 
+            background: var(--bg-color); font-size: 0.8rem; flex: 1; margin: 0;
+        }
+        /* --- МАГАЗИН --- */
+        .shop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .shop-item {
+            background: var(--card-bg); padding: 15px; border-radius: 16px;
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+            box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.05); position: relative;
+        }
+        .shop-icon { font-size: 2.5rem; margin-bottom: 5px; }
+        .shop-price {
+            background: var(--warning); color: #fff; padding: 4px 10px; border-radius: 10px;
+            font-size: 0.8rem; font-weight: bold; margin-bottom: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .btn-buy {
+            width: 100%; padding: 8px; background: var(--bg-color); color: var(--text-main);
+            border-radius: 10px; font-size: 0.8rem; font-weight: bold;
+        }
+        .btn-buy:active { background: var(--success); color: white; }
+        .del-reward { position: absolute; top: 5px; right: 5px; color: var(--danger); opacity: 0.3; cursor: pointer; }
+        /* Крестик удаления в магазине */
+        .del-reward { 
+            position: absolute; 
+            top: 5px; 
+            right: 10px; 
+            color: var(--danger); 
+            font-size: 1.2rem;
+            font-weight: bold;
+            opacity: 0.5; 
+            cursor: pointer; 
+            z-index: 10;
+        }
+        .del-reward:hover { opacity: 1; }
+        /* ТАЙМЕР ФОКУСА */
+        .timer-display { 
+            font-size: 4.5rem; font-weight: 900; color: var(--text-main); 
+            margin: 20px 0; font-variant-numeric: tabular-nums; 
+            line-height: 1;
+        }
+        .timer-mode {
+            background: rgba(0,0,0,0.05); padding: 5px 15px; 
+            border-radius: 20px; font-size: 0.8rem; text-transform: uppercase; 
+            letter-spacing: 1px; font-weight: bold; color: var(--text-sec);
+        }
+        .timer-controls { display: flex; gap: 15px; justify-content: center; width: 100%; margin-top: 20px; }
+        /* Зеленый для отдыха, Фиолетовый для работы */
+        .mode-work .timer-display { color: var(--primary); }
+        .mode-rest .timer-display { color: var(--success); }
+        /* Кнопка Фокуса (Антивыгорание) */
+        .btn-focus {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe); /* Фиолетовый градиент */
+            color: white;
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 4px 10px rgba(108, 92, 231, 0.3);
+            transition: 0.2s;
+            margin-right: 5px;
+        }
+        .btn-focus:active { transform: scale(0.95); }
+    </style>
+</head>
+<body data-theme="light">
+
+<header>
+    <div class="header-top">
+        <div class="logo">ТЕПЛО</div>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn btn-circle" onclick="app.ui.modal('achievements')" style="color: #f1c40f;">🏆</button>
+            <button class="btn btn-circle" onclick="app.ui.modal('settings')">⚙️</button>
+        </div>
+    </div>
+    <div class="global-filter">
+        <div class="filter-chip active" onclick="app.ui.setFilter('today', this)">Сегодня</div>
+        <div class="filter-chip" onclick="app.ui.setFilter('week', this)">Неделя</div>
+        <div class="filter-chip" onclick="app.ui.setFilter('month', this)">Месяц</div>
+        <div class="filter-chip" onclick="app.ui.setFilter('all', this)">Все время</div>
+        <div class="filter-chip" style="border: 1px dashed var(--primary)" onclick="app.ui.toggleCustomDate()">📅 Выбрать</div>
+    </div>
+    <div id="custom-date-panel" class="hidden">
+        <input type="date" id="date-start" onchange="app.ui.setFilter('custom')">
+        <input type="date" id="date-end" onchange="app.ui.setFilter('custom')">
+    </div>
+    <div style="text-align: center; font-size: 0.75rem; margin-top: 5px; color: var(--text-sec)" id="current-range-label"></div>
+</header>
+
+<div id="tab-stats" class="container tab-content active">
+    <div class="card" style="background: linear-gradient(135deg, #a29bfe, #6c5ce7); color: white;">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h3 style="opacity: 0.9">Серия (Streak)</h3>
+                <div style="font-size: 2.2rem; font-weight: 900;" id="streak-val">0</div>
+                <small>дней без пропусков</small>
+            </div>
+            <div style="font-size: 2.5rem">🔥</div>
+        </div>
+    </div>
+    
+    <div class="card">
+        <h2>⚡ Энергия</h2>
+        <div class="chart-box" id="chart-energy" style="height: 150px;"></div>
+        <div style="text-align: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(0,0,0,0.05);">
+            <div style="font-size: 0.8rem; color: var(--text-sec); text-transform: uppercase; letter-spacing: 1px;">Набрано за период</div>
+            <div id="total-points-display" style="font-size: 2rem; font-weight: 900; color: var(--primary); margin: 5px 0;">0</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>📊 Финансы (<span class="curr"></span>)</h2>
+        <div class="chart-box" id="chart-finance" style="height: 150px;"></div>
+        <div style="text-align: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(0,0,0,0.05);">
+            <div style="font-size: 0.8rem; color: var(--text-sec); text-transform: uppercase; letter-spacing: 1px;">Текущий баланс</div>
+            <div id="balance-display" style="font-size: 2rem; font-weight: 900; color: var(--text-main); margin: 5px 0;">0</div>
+        </div>
+        <div style="display: flex; justify-content: space-between; padding: 0 20px; font-size: 0.9rem;">
+            <div style="color: var(--success); font-weight: 600;">▼ <span id="stat-inc">0</span></div>
+            <div style="color: var(--danger); font-weight: 600;">▲ <span id="stat-exp">0</span></div>
+        </div>
+    </div>
+    <div class="card">
+        <h2>🍰 Структура расходов</h2>
+        <div id="expense-pie-chart-wrapper" style="text-align: center; color: var(--text-sec); padding: 20px;">
+            Нет данных за этот период
+        </div>
+    </div>
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h2>🎯 Глобальные цели</h2>
+            <button class="btn btn-sm btn-primary" onclick="app.ui.modal('add-goal')">+ Цель</button>
+        </div>
+        <div id="goals-list"></div>
+    </div>
+</div>
+
+<div id="tab-tasks" class="container tab-content">
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <button class="btn btn-circle" onclick="app.tasks.nav(-1)">◀</button>
+            <h3 id="task-date-label">Сегодня</h3>
+            <button class="btn btn-circle" onclick="app.tasks.nav(1)">▶</button>
+        </div>
+        <input type="text" id="task-input" placeholder="Новая задача..." onkeypress="if(event.key==='Enter') app.tasks.add()">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px;">
+            <select id="task-cat" style="flex: 1; margin: 0;">
+                <option value="Работа">💼 Работа</option>
+                <option value="Тело">💪 Тело</option>
+                <option value="Фокус">🧠 Фокус</option>
+                <option value="Быт">🏠 Быт</option>
+            </select>
+            <label style="display: flex; align-items: center; gap: 5px; font-size: 0.8rem; cursor: pointer;">
+                <input type="checkbox" id="task-recur" style="width: auto; margin: 0;"> Повторять
+            </label>
+        </div>
+        <button class="btn btn-primary" style="width: 100%" onclick="app.tasks.add()">Добавить</button>
+    </div>
+    <div id="tasks-container"></div>
+</div>
+
+<div id="tab-wallet" class="container tab-content">
+    <div class="wallet-card wallet-inc">
+        <h3>💰 Доход</h3>
+        <div style="margin-top: 10px; display: flex; gap: 5px;">
+            <input type="number" id="inc-sum" placeholder="0.00" style="background: rgba(255,255,255,0.2); color: white; border: none; margin: 0;">
+            <button class="btn" style="background: white; color: var(--success);" onclick="app.finance.add('income')">OK</button>
+        </div>
+        <select id="inc-cat" style="margin-top: 5px; background: rgba(255,255,255,0.2); color: white; border: none;">
+            <option style="color:black" value="Зарплата">Зарплата</option>
+            <option style="color:black" value="Фриланс">Фриланс</option>
+            <option style="color:black" value="Перевод">Перевод</option>
+            <option style="color:black" value="Другое">Другое</option>
+        </select>
+    </div>
+    
+    <div class="wallet-card wallet-exp">
+        <h3>💸 Расход</h3>
+        <div style="margin-top: 10px; display: flex; gap: 5px;">
+            <input type="number" id="exp-sum" placeholder="0.00" style="background: rgba(255,255,255,0.2); color: white; border: none; margin: 0;">
+            <button class="btn" style="background: white; color: var(--danger);" onclick="app.finance.add('expense')">OK</button>
+        </div>
+        <select id="exp-cat" style="margin-top: 5px; background: rgba(255,255,255,0.2); color: white; border: none;">
+            <option style="color:black" value="Еда">Еда</option>
+            <option style="color:black" value="Сигареты">🚬 Сигареты</option>
+            <option style="color:black" value="Квартира">Квартира</option>
+            <option style="color:black" value="Досуг">Досуг</option>
+            <option style="color:black" value="Транспорт">Транспорт</option>
+            <option style="color:black" value="Другое">Другое</option>
+        </select>
+    </div>
+
+    <div class="card" style="margin-top: 20px;">
+        <div class="wallet-controls" style="display: flex; flex-direction: column; gap: 10px;">
+            <div style="display: flex; gap: 10px;">
+                <select id="wallet-sort" class="sort-select" onchange="app.ui.renderWallet()">
+                    <option value="date-desc">📅 Новые</option>
+                    <option value="date-asc">📅 Старые</option>
+                    <option value="amount-desc">💎 Дорогие</option>
+                    <option value="amount-asc">💎 Дешевые</option>
+                </select>
+                <select id="wallet-filter-type" class="sort-select" onchange="app.ui.renderWallet()">
+                    <option value="all">Все типы</option>
+                    <option value="income">💰 Доходы</option>
+                    <option value="expense">💸 Расходы</option>
+                </select>
+            </div>
+
+            <select id="wallet-filter-cat" class="sort-select" style="width: 100%;" onchange="app.ui.renderWallet()">
+                <option value="all">📂 Все категории</option>
+                <option disabled>── Расходы ──</option>
+                <option value="Еда">Еда</option>
+                <option value="Сигареты">🚬 Сигареты</option>
+                <option value="Квартира">Квартира</option>
+                <option value="Развлечения">Развлечения</option>
+                <option value="Транспорт">Транспорт</option>
+                <option value="Здоровье">Здоровье</option>
+                <option value="Досуг">Досуг</option>
+                <option value="Другое">Другое</option>
+                <option disabled>── Доходы ──</option>
+                <option value="Зарплата">Зарплата</option>
+                <option value="Фриланс">Фриланс</option>
+                <option value="Перевод">Перевод</option>
+                <option value="Подарок">Подарок</option>
+            </select>
+        </div>
+        
+        <h3>История за период</h3>
+        <div id="wallet-history"></div>
+    </div>
+</div>
+
+<div id="tab-shop" class="container tab-content">
+    <div class="card" style="background: linear-gradient(135deg, #f1c40f, #f39c12); color: white; text-align: center;">
+        <h3 style="opacity:0.9">Доступно баллов</h3>
+        <div style="font-size: 3rem; font-weight: 900;" id="shop-balance">0</div>
+        <small>Трать с умом!</small>
+    </div>
+
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h2>🛍 Витрина</h2>
+            <button class="btn btn-sm" onclick="app.ui.modal('add-reward')">+ Товар</button>
+        </div>
+        <div id="shop-list" class="shop-grid"></div>
+    </div>
+</div>
+<nav class="nav-bar">
+    <div class="nav-item active" onclick="app.ui.tab('stats', this)">
+        <div style="font-size: 1.2rem;">📊</div><div style="font-size: 0.7rem;">Статистика</div>
+    </div>
+    <div class="nav-item" onclick="app.ui.tab('tasks', this)">
+        <div style="font-size: 1.2rem;">🎯</div><div style="font-size: 0.7rem;">Задачи</div>
+    </div>
+    <div class="nav-item" onclick="app.ui.tab('wallet', this)">
+        <div style="font-size: 1.2rem;">👛</div><div style="font-size: 0.7rem;">Кошелек</div>
+    </div>
+    <div class="nav-item" onclick="app.ui.tab('shop', this)">
+        <div style="font-size: 1.2rem;">🛒</div><div style="font-size: 0.7rem;">Магазин</div>
+    </div>
+</nav>
+
+<div id="modal-settings" class="modal" onclick="if(event.target===this) this.style.display='none'">
+    <div class="modal-content">
+        <h2>Настройки</h2>
+        <label>Валюта:</label>
+        <select id="sets-curr" onchange="app.settings.save()">
+            <option value="USD">USD ($)</option>
+            <option value="EUR">EUR (€)</option>
+            <option value="RUB">RUB (₽)</option>
+            <option value="GEL">GEL (₾)</option>
+        </select>
+        <button class="btn" style="width:100%; margin-top:10px;" onclick="app.ui.theme()">🌓 Тема</button>
+        <br><br>
+        <button class="btn" style="width:100%; color:red" onclick="app.data.wipe()">Сброс данных</button>
+    </div>
+</div>
+
+<div id="modal-add-goal" class="modal" onclick="if(event.target===this) this.style.display='none'">
+    <div class="modal-content">
+        <h2>Новая цель</h2>
+        <input type="text" id="goal-title" placeholder="Название">
+        <select id="goal-type" onchange="document.getElementById('goal-fin-opts').style.display = this.value==='finance'?'block':'none'">
+            <option value="custom">Списочная (шаги)</option>
+            <option value="finance">Финансовая (доход)</option>
+        </select>
+        <div id="goal-fin-opts" style="display:none">
+            <input type="number" id="goal-target" placeholder="Цель дохода за период">
+        </div>
+        <button class="btn btn-primary" style="width:100%; margin-top:10px;" onclick="app.goals.add()">Создать</button>
+    </div>
+</div>
+<div id="modal-add-reward" class="modal" onclick="if(event.target===this) this.style.display='none'">
+    <div class="modal-content">
+        <h2>Новая награда</h2>
+        <input type="text" id="reward-title" placeholder="Название (напр. Кофе)">
+        <input type="text" id="reward-icon" placeholder="Смайлик (напр. ☕)">
+        <input type="number" id="reward-cost" placeholder="Цена в баллах">
+        <button class="btn btn-primary" style="width:100%; margin-top:10px;" onclick="app.shop.add()">Добавить на витрину</button>
+    </div>
+</div>
+<div id="modal-achievements" class="modal" onclick="if(event.target===this) this.style.display='none'">
+    <div class="modal-content">
+        <h2>Достижения</h2>
+        <div id="ach-container" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;"></div>
+    </div>
+</div>
+<div id="modal-timer" class="modal" style="z-index: 3000;">
+    <div class="modal-content" style="text-align: center;">
+        <div id="timer-mode-badge" class="timer-mode">Фокус</div>
+        <h2 id="timer-task-name" style="margin: 15px 0 5px; font-size: 1.2rem;">Задача</h2>
+        
+        <div id="timer-container" class="mode-work">
+            <div class="timer-display" id="timer-val">40:00</div>
+        </div>
+        
+        <p style="font-size: 0.8rem; opacity: 0.6; margin: 0;">Не отвлекайся. Ты сможешь!</p>
+
+        <div class="timer-controls">
+            <button class="btn" style="background: var(--bg-color); color: var(--text-sec)" onclick="app.timer.cancel()">Закрыть</button>
+            <button class="btn btn-primary" id="timer-btn" onclick="app.timer.toggle()">Старт</button>
+        </div>
+        
+        <button id="btn-rest" class="btn" style="width:100%; margin-top:15px; background:var(--success); color:white; display:none" onclick="app.timer.startRest()">☕ Перейти к отдыху (15 мин)</button>
+    </div>
+</div>
+<script>
+const app = {
+    state: {
+        finances: [],
+        tasks: {},
+        recurring: [],
+        goals: [],
+        rewards: [], 
+        spent: 0,
+        achievements: {},
+        moods: {}, // Добавили хранение настроения
+        settings: { currency: 'USD', theme: 'light' },
+        filter: { start: '', end: '', mode: 'today' }
+    },
+    
+    viewDate: new Date().toISOString().split('T')[0],
+    rates: { 'USD': 1, 'EUR': 0.92, 'GEL': 2.75, 'RUB': 90 },
+    syms: { 'USD': '$', 'EUR': '€', 'GEL': '₾', 'RUB': '₽' },
+
+    init() {
+        this.data.load();
+        this.ui.setFilter('today', document.querySelector('.filter-chip.active'));
+        this.achievements.gen();
+        document.body.setAttribute('data-theme', this.state.settings.theme);
+    },
+
+    data: {
+        save() { localStorage.setItem('teplo_final', JSON.stringify(app.state)); app.ui.updateAll(); },
+        load() { 
+            const d = localStorage.getItem('teplo_final'); 
+            if(d) {
+                const parsed = JSON.parse(d);
+                app.state = {...app.state, ...parsed};
+                if(!app.state.rewards) app.state.rewards = [];
+                if(!app.state.spent) app.state.spent = 0;
+                if(!app.state.moods) app.state.moods = {};
+            }
+            document.getElementById('sets-curr').value = app.state.settings.currency;
+        },
+        wipe() { if(confirm('Сбросить?')) { localStorage.removeItem('teplo_final'); location.reload(); } }
+    },
+
+    filter: {
+        calc(mode) {
+            const today = new Date();
+            let start = new Date(), end = new Date();
+            if (mode === 'today') { /* today */ }
+            else if (mode === 'week') { start.setDate(today.getDate() - 6); }
+            else if (mode === 'month') { start.setDate(today.getDate() - 29); }
+            else if (mode === 'all') { start = new Date('2024-01-01'); }
+            else if (mode === 'custom') {
+                const s = document.getElementById('date-start').value;
+                const e = document.getElementById('date-end').value;
+                if(s) start = new Date(s); if(e) end = new Date(e);
+            }
+            app.state.filter = { start: start.toISOString().split('T')[0], end: end.toISOString().split('T')[0], mode };
+            const l = document.getElementById('current-range-label');
+            if(l) l.innerText = `${app.state.filter.start} — ${app.state.filter.end}`;
+        },
+        inRange(d) { return d >= app.state.filter.start && d <= app.state.filter.end; }
+    },
+
+    finance: {
+        add(type) {
+            const s = document.getElementById(type==='income'?'inc-sum':'exp-sum');
+            const c = document.getElementById(type==='income'?'inc-cat':'exp-cat');
+            const val = parseFloat(s.value);
+            if(!val) return;
+            app.state.finances.push({
+                id: Date.now(), date: new Date().toISOString().split('T')[0],
+                type, amount: val, cat: c.value, curr: app.state.settings.currency
+            });
+            s.value = '';
+            app.data.save();
+        },
+        getFiltered() { return app.state.finances.filter(f => app.filter.inRange(f.date)); }
+    },
+
+    // МАГАЗИН (Исправлено: таймер убран отсюда)
+    shop: {
+        add() {
+            const t = document.getElementById('reward-title').value;
+            const i = document.getElementById('reward-icon').value || '🎁';
+            const c = parseInt(document.getElementById('reward-cost').value);
+            if(!t || !c) return alert('Введите данные');
+            app.state.rewards.push({ id: Date.now(), title: t, icon: i, cost: c });
+            document.getElementById('modal-add-reward').style.display = 'none';
+            app.data.save();
+        },
+        buy(id) {
+            const r = app.state.rewards.find(x => x.id === id);
+            const balance = app.ui.calcTotalPoints() - app.state.spent;
+            if(balance >= r.cost) {
+                if(confirm(`Купить "${r.title}"?`)) {
+                    app.state.spent += r.cost;
+                    app.data.save();
+                    alert(`Куплено: ${r.title}`);
+                }
+            } else alert('Мало энергии!');
+        },
+        del(id) {
+            if(confirm('Удалить товар?')) {
+                app.state.rewards = app.state.rewards.filter(x => x.id !== id);
+                app.data.save();
+            }
+        },
+        render() {
+            const c = document.getElementById('shop-list'); c.innerHTML = '';
+            const bal = app.ui.calcTotalPoints() - app.state.spent;
+            document.getElementById('shop-balance').innerText = bal;
+            
+            if(app.state.rewards.length === 0) { c.innerHTML = '<div style="grid-column:1/-1; opacity:0.5; text-align:center">Пусто</div>'; return; }
+
+            app.state.rewards.forEach(r => {
+                const can = bal >= r.cost;
+                c.innerHTML += `
+                    <div class="shop-item" style="opacity:${can?1:0.7}">
+                        <div class="del-reward" onclick="event.stopPropagation(); app.shop.del(${r.id})">×</div>
+                        <div class="shop-icon">${r.icon}</div>
+                        <div class="shop-price">${r.cost} ⚡</div>
+                        <div style="font-weight:600; font-size:0.9rem; margin-bottom:8px">${r.title}</div>
+                        <button class="btn-buy" onclick="app.shop.buy(${r.id})" style="background:${can?'var(--bg-color)':'#eee'}">${can?'Купить':'Не хватает'}</button>
+                    </div>`;
+            });
+        }
+    },
+
+    // ТАЙМЕР (Теперь на своем месте!)
+    timer: {
+        interval: null, timeLeft: 0, mode: 'work', isRunning: false, currentTask: '',
+        open(taskName) {
+            // Экранируем кавычки, чтобы не ломался HTML
+            this.currentTask = taskName.replace(/'/g, "") || 'Фокус';
+            this.setMode('work');
+            document.getElementById('timer-task-name').innerText = this.currentTask;
+            document.getElementById('modal-timer').style.display = 'flex';
+        },
+        setMode(mode) {
+            this.mode = mode; this.isRunning = false; clearInterval(this.interval);
+            const cont = document.getElementById('timer-container');
+            const badge = document.getElementById('timer-mode-badge');
+            const btn = document.getElementById('timer-btn');
+            const btnRest = document.getElementById('btn-rest');
+
+            if (mode === 'work') {
+                this.timeLeft = 40 * 60; 
+                cont.className = 'mode-work'; badge.innerText = '💪 Время работать'; btnRest.style.display = 'none';
+            } else {
+                this.timeLeft = 15 * 60; 
+                cont.className = 'mode-rest'; badge.innerText = '☕ Время отдыха'; btnRest.style.display = 'none';
+            }
+            btn.innerText = 'Старт'; btn.style.background = mode==='work'?'var(--primary)':'var(--success)';
+            this.updateView();
+        },
+        toggle() { if(this.isRunning) this.pause(); else this.start(); },
+        start() {
+            this.isRunning = true;
+            document.getElementById('timer-btn').innerText = 'Пауза';
+            document.getElementById('timer-btn').style.background = 'var(--warning)';
+            this.interval = setInterval(() => {
+                this.timeLeft--; this.updateView();
+                if(this.timeLeft <= 0) this.finish();
+            }, 1000);
+        },
+        pause() {
+            this.isRunning = false; clearInterval(this.interval);
+            document.getElementById('timer-btn').innerText = 'Продолжить';
+            document.getElementById('timer-btn').style.background = this.mode==='work'?'var(--primary)':'var(--success)';
+        },
+        startRest() { this.setMode('rest'); this.start(); },
+        cancel() { this.pause(); document.getElementById('modal-timer').style.display = 'none'; },
+        finish() {
+            this.pause();
+            if(navigator.vibrate) navigator.vibrate([300, 100, 300]);
+            if(this.mode === 'work') {
+                alert('🎉 40 минут прошло! Время отдыха.');
+                if(!app.state.tasks[app.viewDate]) app.state.tasks[app.viewDate] = [];
+                app.state.tasks[app.viewDate].push({id: Date.now(), text: `🍅 Сессия: ${this.currentTask}`, cat: 'Фокус', points: 15, done: true, sub: []});
+                app.data.save();
+                document.getElementById('btn-rest').style.display = 'block';
+            } else {
+                alert('🔋 Отдых окончен!'); document.getElementById('modal-timer').style.display = 'none';
+            }
+        },
+        updateView() {
+            const m = Math.floor(this.timeLeft/60).toString().padStart(2,'0');
+            const s = (this.timeLeft%60).toString().padStart(2,'0');
+            document.getElementById('timer-val').innerText = `${m}:${s}`;
+        }
+    },
+
+    tasks: {
+        nav(d) {
+            const dt = new Date(app.viewDate); dt.setDate(dt.getDate() + d);
+            app.viewDate = dt.toISOString().split('T')[0]; app.ui.updateAll();
+        },
+        add() {
+            const txt = document.getElementById('task-input').value; if(!txt) return;
+            const cat = document.getElementById('task-cat').value;
+            const rec = document.getElementById('task-recur').checked;
+            const pts = {'Работа':10, 'Тело':5, 'Фокус':5, 'Быт':2}[cat];
+
+            if(rec) app.state.recurring.push({id: Date.now(), text: txt, cat, points: pts});
+            else {
+                if(!app.state.tasks[app.viewDate]) app.state.tasks[app.viewDate] = [];
+                app.state.tasks[app.viewDate].push({id: Date.now(), text: txt, cat, points: pts, done: false, sub: [], expanded: false});
+            }
+            document.getElementById('task-input').value = '';
+            document.getElementById('task-recur').checked = false;
+            app.data.save();
+        },
+        toggle(id) {
+            let t = (app.state.tasks[app.viewDate]||[]).find(x => x.id === id);
+            if(t) t.done = !t.done;
+            else {
+                const tmpl = app.state.recurring.find(x => x.id === id);
+                if(tmpl) {
+                    if(!app.state.tasks[app.viewDate]) app.state.tasks[app.viewDate] = [];
+                    app.state.tasks[app.viewDate].push({id: tmpl.id, realId: Date.now(), text: tmpl.text, cat: tmpl.cat, points: tmpl.points, done: true, sub: [], expanded: false, isRecurInstance: true});
+                }
+            }
+            app.data.save();
+        },
+        addSub(id) {
+            const t = this.find(id); const txt = prompt('Подзадача:');
+            if(t && txt) { t.sub.push({text: txt, done: false}); t.expanded = true; app.data.save(); }
+        },
+        togSub(tid, idx) {
+            const t = this.find(tid);
+            if(t) { t.sub[idx].done = !t.sub[idx].done; if(t.sub.every(s=>s.done)) t.done=true; else t.done=false; app.data.save(); }
+        },
+        togList(id) { const t = this.find(id); if(t) { t.expanded = !t.expanded; app.data.save(); } },
+        del(id) {
+            if(confirm('Удалить?')) {
+                const rIdx = app.state.recurring.findIndex(t => t.id === id);
+                if(rIdx !== -1) app.state.recurring.splice(rIdx, 1);
+                if(app.state.tasks[app.viewDate]) app.state.tasks[app.viewDate] = app.state.tasks[app.viewDate].filter(t => (t.realId || t.id) !== id);
+                app.data.save();
+            }
+        },
+        find(id) { return (app.state.tasks[app.viewDate]||[]).find(x => x.id === id || x.realId === id); },
+        getListForView() {
+            const reg = app.state.tasks[app.viewDate] || [];
+            const gh = app.state.recurring.filter(tpl => !reg.some(t => t.id === tpl.id)).map(tpl => ({...tpl, done: false, isGhost: true, expanded: false, sub: []}));
+            return [...reg, ...gh];
+        }
+    },
+
+    goals: {
+        add() {
+            const t = document.getElementById('goal-title').value;
+            const type = document.getElementById('goal-type').value;
+            const tg = parseFloat(document.getElementById('goal-target').value) || 0;
+            if(!t) return;
+            app.state.goals.push({ id: Date.now(), title: t, type, target: tg, sub: [], done: false, expanded: true });
+            document.getElementById('modal-add-goal').style.display='none';
+            app.data.save();
+        },
+        addSub(gid) {
+            const g = app.state.goals.find(x => x.id === gid);
+            const txt = prompt('Этап:');
+            if(g && txt) { g.sub.push({text: txt, done: false}); g.expanded = true; app.data.save(); }
+        },
+        togSub(gid, idx) {
+            const g = app.state.goals.find(x => x.id === gid);
+            g.sub[idx].done = !g.sub[idx].done;
+            app.data.save();
+        },
+        togList(gid) {
+            const g = app.state.goals.find(x => x.id === gid);
+            if(g) { if(g.expanded === undefined) g.expanded = true; g.expanded = !g.expanded; app.data.save(); }
+        },
+        del(gid) { if(confirm('Удалить?')) { app.state.goals = app.state.goals.filter(x => x.id !== gid); app.data.save(); } }
+    },
+
+    achievements: {
+        list: [],
+        gen() {
+             const c = (id, icon, title, desc, check) => this.list.push({id, icon, title, desc, check});
+             c('t1', '🚀', 'Первый шаг', 'Выполни 1 задачу', s => s.doneT >= 1);
+             c('t10', '🎯', 'Разгон', 'Выполни 10 задач суммарно', s => s.doneT >= 10);
+             c('t50', '🔥', 'Машина', 'Закрой 50 задач. Ты монстр продуктивности!', s => s.doneT >= 50);
+             c('m1', '🤑', 'Первый доход', 'Запиши хотя бы один доход', s => s.incOps >= 1);
+             c('s3', '👟', 'Стрик 3 дня', 'Не пропускай задачи 3 дня подряд', s => s.streak >= 3);
+             c('s7', '🏃', 'Стрик Неделя', 'Держи темп целую неделю без пропусков', s => s.streak >= 7);
+        },
+        check() {
+            const allT = Object.values(app.state.tasks).flat();
+            const doneT = allT.filter(x => x.done).length;
+            const incOps = app.state.finances.filter(x => x.type === 'income').length;
+            let streak = 0; const d = new Date();
+            while(true) {
+                const dt = d.toISOString().split('T')[0];
+                const pt = (app.state.tasks[dt]||[]).filter(t=>t.done).reduce((a,b)=>a+b.points,0);
+                if(pt>0) streak++; else if(dt !== new Date().toISOString().split('T')[0]) break;
+                d.setDate(d.getDate()-1); if(streak > 365) break;
+            }
+            const st = {doneT, incOps, streak};
+            let ch = false;
+            this.list.forEach(a => {
+                if(!app.state.achievements[a.id] && a.check(st)) {
+                    app.state.achievements[a.id] = true; alert(`🏆 ДОСТИЖЕНИЕ:\n${a.title}\n${a.desc}`); ch = true;
+                }
+            });
+            if(ch) app.data.save();
+            return streak;
+        }
+    },
+
+    ui: {
+        calcTotalPoints() {
+            let sum = 0;
+            if(app.state.tasks) Object.values(app.state.tasks).flat().forEach(t => { if(t.done) sum += t.points; });
+            return sum;
+        },
+        setFilter(mode, el) {
+            const p = document.getElementById('custom-date-panel');
+            if(mode === 'custom') { p.classList.remove('hidden'); p.style.display='flex'; } 
+            else { p.classList.add('hidden'); p.style.display='none'; }
+            if(el) { document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); }
+            app.filter.calc(mode); this.updateAll();
+        },
+        toggleCustomDate() {
+            const p = document.getElementById('custom-date-panel');
+            if (p.classList.contains('hidden')) { p.classList.remove('hidden'); p.style.display='flex'; } else { p.classList.add('hidden'); p.style.display='none'; }
+        },
+        updateAll() {
+            this.renderStats(); this.renderTasks(); this.renderWallet(); this.renderGoals(); this.renderAch();
+            if(app.shop) app.shop.render();
+        },
+        renderStats() {
+            const fins = app.finance.getFiltered();
+            const targetCurr = app.state.settings.currency;
+            let inc = 0, exp = 0;
+            const expByCat = {}; 
+            
+            fins.forEach(f => {
+                const v = (f.amount / app.rates[f.curr]) * app.rates[targetCurr];
+                if(f.type === 'income') { inc += v; } else { exp += v; expByCat[f.cat] = (expByCat[f.cat] || 0) + v; }
+            });
+            
+            const sym = app.syms[targetCurr];
+            const balance = inc - exp;
+            
+            document.getElementById('balance-display').innerText = balance.toFixed(0) + ' ' + sym;
+            document.getElementById('balance-display').style.color = balance >= 0 ? 'var(--text-main)' : 'var(--danger)';
+            document.getElementById('stat-inc').innerText = inc.toFixed(0) + ' ' + sym;
+            document.getElementById('stat-exp').innerText = exp.toFixed(0) + ' ' + sym;
+            document.querySelectorAll('.curr').forEach(e => e.innerText = sym);
+            
+            document.getElementById('streak-val').innerText = app.achievements.check();
+            document.getElementById('total-points-display').innerText = app.ui.calcTotalPoints();
+
+            // Charts
+            const days = []; for(let k=6; k>=0; k--) { const d=new Date(); d.setDate(d.getDate()-k); days.push(d.toISOString().split('T')[0]); }
+            const ce = document.getElementById('chart-energy'); ce.innerHTML = '';
+            const cf = document.getElementById('chart-finance'); cf.innerHTML = '';
+            
+            let maxFin = 100;
+            days.forEach(d => {
+                 const df = app.state.finances.filter(f=>f.date===d);
+                 let di=0, de=0;
+                 df.forEach(f=>{ const v=(f.amount/app.rates[f.curr])*app.rates[targetCurr]; if(f.type==='income') di+=v; else de+=v; });
+                 if(di>maxFin) maxFin=di; if(de>maxFin) maxFin=de;
+            });
+            
+            let maxPts = 10;
+            const ppd = days.map(d => (app.state.tasks[d]||[]).filter(t=>t.done).reduce((a,b)=>a+b.points,0));
+            maxPts = Math.max(10, ...ppd);
+
+            days.forEach((d, i) => {
+                const pt = ppd[i];
+                ce.innerHTML += `<div class="bar-col"><div class="bar" style="height:${(pt/maxPts)*100}%; background:var(--primary)"></div></div>`;
+                const df = app.state.finances.filter(f=>f.date===d);
+                let di=0, de=0;
+                df.forEach(f=>{ const v=(f.amount/app.rates[f.curr])*app.rates[targetCurr]; if(f.type==='income') di+=v; else de+=v; });
+                cf.innerHTML += `<div class="bar-col"><div style="display:flex; align-items:flex-end; gap:2px; height:100%; width:100%; justify-content:center"><div class="bar" style="width:12px; background:var(--success); height:${(di/maxFin)*100}%"></div><div class="bar" style="width:12px; background:var(--danger); height:${(de/maxFin)*100}%"></div></div></div>`;
+            });
+
+            // Pie Chart
+            const pieContainer = document.getElementById('expense-pie-chart-wrapper');
+            if (exp === 0) { pieContainer.innerHTML = 'Нет расходов'; } else {
+                const sortedCats = Object.entries(expByCat).sort((a, b) => b[1] - a[1]);
+                const colors = ['#ff7675', '#74b9ff', '#55efc4', '#a29bfe', '#fdcb6e', '#e17055', '#00b894', '#636e72'];
+                let gradientStr = ''; let startPerc = 0; let legendHtml = '';
+                sortedCats.forEach((item, index) => {
+                    const [catName, amount] = item;
+                    const perc = (amount / exp) * 100;
+                    const endPerc = startPerc + perc;
+                    const color = colors[index % colors.length];
+                    gradientStr += `${color} ${startPerc}% ${endPerc}%, `;
+                    startPerc = endPerc;
+                    legendHtml += `<div class="legend-item"><div class="legend-color" style="background:${color}"></div><span>${catName}: <b>${amount.toFixed(0)}</b> (${perc.toFixed(0)}%)</span></div>`;
+                });
+                gradientStr = gradientStr.slice(0, -2);
+                pieContainer.innerHTML = `<div class="pie-chart-container"><div class="pie-chart" style="background: conic-gradient(${gradientStr})"></div><div class="chart-legend">${legendHtml}</div></div>`;
+            }
+        },
+        
+        renderTasks() {
+            document.getElementById('task-date-label').innerText = app.viewDate;
+            const c = document.getElementById('tasks-container'); c.innerHTML = '';
+            const lst = app.tasks.getListForView();
+            if(lst.length===0) c.innerHTML = '<div style="text-align:center; opacity:0.5; padding:20px">Нет задач</div>';
+            
+            lst.forEach(t => {
+                const gh = t.isGhost;
+                const id = gh ? t.id : (t.realId || t.id);
+                const arrow = t.expanded ? '▼' : '▶';
+                const dSub = t.expanded ? 'block' : 'none';
+                let sH = '';
+                if(t.sub) t.sub.forEach((s,i) => {
+                    sH += `<div class="subtask"><input type="checkbox" ${s.done?'checked':''} onchange="app.tasks.togSub(${id},${i})"><span style="margin-left:8px; text-decoration:${s.done?'line-through':''}">${s.text}</span></div>`;
+                });
+                const delBtn = `<button class="btn-toggle" style="color:var(--danger); font-size:1.4rem; padding:0 5px; line-height:1;" onclick="app.tasks.del(${id})">×</button>`;
+                
+                // --- НОВАЯ КРАСИВАЯ КНОПКА ФОКУСА ---
+                let timerBtn = '';
+                if (t.cat === 'Работа' || t.cat === 'Фокус') {
+                    // Используем replace, чтобы кавычки в тексте задачи не ломали код
+                    const safeText = t.text.replace(/'/g, "");
+                    timerBtn = `<button class="btn-focus" onclick="app.timer.open('${safeText}')">⏱ Фокус</button>`;
+                }
+
+                c.innerHTML += `
+                    <div class="task-item" style="border-left-color:${t.done?'var(--success)':'var(--primary)'}; opacity:${t.done?0.7:1}">
+                        <div style="display:flex; justify-content:space-between; align-items:center">
+                            <div style="display:flex; align-items:center; flex:1">
+                                <input type="checkbox" ${t.done?'checked':''} onchange="app.tasks.toggle(${t.id})" style="width:20px;height:20px;margin:0">
+                                <div style="margin-left:10px">
+                                    <span style="font-weight:600; text-decoration:${t.done?'line-through':''}">${t.text}</span>
+                                    ${gh ? '<span class="recurring-badge">↻</span>' : ''}
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:5px; align-items:center">
+                                <small style="opacity:0.6; margin-right:5px">${t.points}б</small>
+                                ${timerBtn}
+                                ${delBtn}
+                                <button class="btn-toggle" onclick="app.tasks.togList(${id})">${arrow}</button>
+                            </div>
+                        </div>
+                        <div class="subtasks-list" style="display:${dSub}">
+                            ${sH}
+                            ${!gh ? `<div style="font-size:0.8rem; color:var(--primary); cursor:pointer; margin-top:5px" onclick="app.tasks.addSub(${id})">+ Подзадача</div>` : ''}
+                        </div>
+                    </div>`;
+            });
+        },
+        
+        renderWallet() {
+            const cont = document.getElementById('wallet-history'); 
+            cont.innerHTML = '';
+            let list = app.finance.getFiltered();
+            const typeFilter = document.getElementById('wallet-filter-type')?.value || 'all';
+            if (typeFilter !== 'all') list = list.filter(f => f.type === typeFilter);
+            const catFilter = document.getElementById('wallet-filter-cat')?.value || 'all';
+            if (catFilter !== 'all') list = list.filter(f => f.cat === catFilter);
+            
+            const sortMode = document.getElementById('wallet-sort')?.value || 'date-desc';
+            list.sort((a, b) => {
+                if (sortMode === 'date-desc') return new Date(b.date) - new Date(a.date) || b.id - a.id;
+                if (sortMode === 'date-asc') return new Date(a.date) - new Date(b.date) || a.id - b.id;
+                const valA = (a.amount / app.rates[a.curr]);
+                const valB = (b.amount / app.rates[b.curr]);
+                if (sortMode === 'amount-desc') return valB - valA;
+                if (sortMode === 'amount-asc') return valA - valB;
+                return 0;
+            });
+
+            if(list.length === 0) {
+                cont.innerHTML='<div style="text-align:center; opacity:0.5; padding:20px">Нет операций</div>';
+                return;
+            }
+
+            list.forEach(f => {
+                const val = (f.amount / app.rates[f.curr]) * app.rates[app.state.settings.currency];
+                const sym = app.syms[app.state.settings.currency];
+                const col = f.type==='income'?'var(--success)':'var(--danger)';
+                const sign = f.type==='income'?'+':'-';
+                cont.innerHTML += `
+                    <div class="history-item">
+                        <div><b>${f.cat}</b> <br> <small style="color:#aaa">${f.date}</small></div>
+                        <div style="text-align:right">
+                            <div style="color:${col}; font-weight:bold">${sign} ${val.toFixed(0)} ${sym}</div>
+                            <small style="opacity:0.5; font-size:0.7rem">${f.amount} ${app.syms[f.curr]}</small>
+                        </div>
+                    </div>`;
+            });
+        },
+        
+        renderGoals() {
+            const c = document.getElementById('goals-list'); c.innerHTML = '';
+            app.state.goals.forEach(g => {
+                const open = g.expanded !== false;
+                const arrow = open ? '▼' : '▶';
+                const dBody = open ? 'block' : 'none';
+                let cnt = '';
+                if(g.type === 'custom') {
+                    const dn = g.sub.filter(s=>s.done).length, tot = g.sub.length;
+                    const p = tot ? (dn/tot)*100 : 0;
+                    let sh = ''; g.sub.forEach((s,i) => sh += `<div class="subtask"><input type="checkbox" ${s.done?'checked':''} onchange="app.goals.togSub(${g.id},${i})"><span style="margin-left:5px">${s.text}</span></div>`);
+                    cnt = `<div class="progress-bar"><div class="progress-fill" style="width:${p}%"></div></div><div style="display:${dBody}">${sh}<button class="btn btn-sm" style="margin-top:5px; width:100%" onclick="app.goals.addSub(${g.id})">+ Этап</button></div>`;
+                } else {
+                    const f = app.finance.getFiltered().filter(x=>x.type==='income');
+                    const ti = f.reduce((a,b)=>a+((b.amount/app.rates[b.curr])*app.rates[app.state.settings.currency]),0);
+                    const p = g.target>0 ? Math.min(100,(ti/g.target)*100) : 0;
+                    cnt = `<div style="font-size:0.8rem; display:${dBody}">Собрано: <b>${ti.toFixed(0)}</b> / ${g.target}</div><div class="progress-bar"><div class="progress-fill" style="width:${p}%"></div></div>`;
+                }
+                c.innerHTML += `<div class="goal-item"><div class="goal-header"><div style="display:flex; gap:10px; align-items:center" onclick="app.goals.togList(${g.id})"><span class="btn-toggle" style="font-size:1rem">${arrow}</span> <b>${g.title}</b></div><button class="btn-toggle" style="color:var(--danger)" onclick="app.goals.del(${g.id})">✕</button></div>${cnt}</div>`;
+            });
+        },
+        
+        renderAch() {
+            const c = document.getElementById('ach-container'); c.innerHTML = '';
+            app.achievements.list.forEach(a => {
+                const u = app.state.achievements[a.id];
+                c.innerHTML += `
+                <div onclick="alert('${a.title}\\n\\n${a.desc}')" title="${a.desc}" style="
+                    background: ${u ? 'var(--card-bg)' : 'rgba(0,0,0,0.05)'};
+                    border: 1px solid ${u ? 'var(--primary)' : 'transparent'};
+                    opacity: ${u ? 1 : 0.5};
+                    filter: ${u ? 'none' : 'grayscale(1)'};
+                    padding: 10px; border-radius: 15px; text-align: center;
+                    display: flex; flex-direction: column; align-items: center; justify-content: center;
+                    box-shadow: ${u ? 'var(--shadow)' : 'none'};
+                    cursor: pointer; transition: 0.2s;
+                ">
+                    <div style="font-size: 2rem; margin-bottom: 5px;">${a.icon}</div>
+                    <div style="font-size: 0.65rem; font-weight: bold; line-height: 1.2;">${a.title}</div>
+                </div>`;
+            });
+        },
+        
+        tab(id, btn) {
+            document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
+            document.getElementById('tab-'+id).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+            btn.classList.add('active');
+            this.updateAll();
+        },
+        modal(id) { document.getElementById('modal-'+id).style.display='flex'; if(id==='achievements') this.renderAch(); },
+        theme() { 
+            app.state.settings.theme = app.state.settings.theme==='light'?'dark':'light'; 
+            document.body.setAttribute('data-theme', app.state.settings.theme);
+            app.data.save();
+        }
+    },
+    settings: {
+        save() { app.state.settings.currency = document.getElementById('sets-curr').value; app.data.save(); }
+    }
+};
+window.onload = () => app.init();
+</script>
+</body>
+</html>
